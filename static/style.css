@@ -1,0 +1,240 @@
+:root {
+    --primary-color: #3498db;
+    --primary-dark: #2980b9;
+    --secondary-color: #f1c40f;
+    --background-color: #fef9e7;
+    --text-color: #2c3e50;
+    --light-gray: #ecf0f1;
+    --dark-gray: #bdc3c7;
+  }
+  
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  
+  body {
+    font-family: 'OpenDyslexic', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+  }
+  
+  .logo {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+  }
+  
+  p.description {
+    font-size: 1.2rem;
+    margin: 0 auto 30px auto;
+    line-height: 1.6;
+    color: var(--text-color);
+  }
+  
+  .upload-area {
+    background-color: white;
+    border: 2px dashed var(--dark-gray);
+    border-radius: 10px;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .upload-area:hover {
+    border-color: var(--primary-color);
+    background-color: rgba(52, 152, 219, 0.05);
+  }
+  
+  .upload-area.highlight {
+    border-color: var(--primary-color);
+    background-color: rgba(52, 152, 219, 0.1);
+  }
+  
+  .upload-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 15px;
+  }
+  
+  .upload-text {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+  }
+  
+  input[type="file"] {
+    display: none;
+  }
+  
+  .preview-container {
+    margin: 20px 0;
+    text-align: center;
+  }
+  
+  #preview {
+    max-width: 100%;
+    max-height: 300px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  #outputText {
+    margin: 30px 0;
+    padding: 20px;
+    font-size: 1.3rem;
+    line-height: 1.8;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid var(--light-gray);
+    min-height: 150px;
+    text-align: left;
+    white-space: pre-wrap;
+  }
+  
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin: 20px 0;
+  }
+  
+  button {
+    padding: 12px 25px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  button:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
+  
+  button:disabled {
+    background-color: var(--dark-gray);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+  
+  .speed-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+  }
+  
+  .speed-control label {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+  }
+  
+  .speed-value {
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+  
+  input[type="range"] {
+    width: 100%;
+    max-width: 300px;
+    height: 8px;
+    -webkit-appearance: none;
+    background: var(--light-gray);
+    border-radius: 4px;
+    outline: none;
+  }
+  
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .progress-container {
+    width: 100%;
+    background-color: var(--light-gray);
+    border-radius: 5px;
+    margin: 20px 0;
+    display: none;
+  }
+  
+  #progressBar {
+    height: 10px;
+    border-radius: 5px;
+    background-color: var(--primary-color);
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+  
+  .status {
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: var(--primary-dark);
+  }
+  
+  footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #777;
+  }
+  
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 2rem;
+    }
+    
+    .container {
+      padding: 10px;
+    }
+    
+    .controls {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  
+  /* Dyslexia-friendly styles */
+  .dyslexia-mode {
+    letter-spacing: 0.1em;
+    line-height: 1.8;
+  }
+  
+  .dyslexia-mode #outputText {
+    font-size: 1.4rem;
+  }

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SuaraBaca: Aplikasi Baca untuk Anak Disleksia</title>
+  <link href="https://fonts.cdnfonts.com/css/opendyslexic" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">📖</div>
+      <h1>SuaraBaca</h1>
+      <p class="description">
+        Aplikasi berbasis website yang membantu anak-anak dengan disleksia membaca teks dari gambar. 
+        Upload gambar buku atau dokumen, dan SuaraBaca akan membacakan teksnya untukmu!
+      </p>
+    </header>
+
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">📤</div>
+      <div class="upload-text">Klik untuk mengunggah gambar atau tarik dan lepas di sini</div>
+      <div>Format yang didukung: JPG, PNG</div>
+      <input type="file" id="imageInput" accept="image/*">
+    </div>
+
+    <div class="progress-container" id="progressContainer">
+      <div id="progressBar"></div>
+      <div class="status" id="statusText">Memproses gambar...</div>
+    </div>
+
+    <div class="preview-container">
+      <img id="preview" style="display: none;" />
+    </div>
+
+    <div id="outputText">
+      Teks yang diekstrak akan muncul di sini...
+    </div>
+
+    <div class="controls">
+      <button onclick="readText()" id="readButton" disabled>
+        <span>🔊</span> Baca Teks
+      </button>
+      <button onclick="stopReading()" id="stopButton" disabled>
+        <span>⏹️</span> Berhenti
+      </button>
+      <button onclick="toggleDyslexiaMode()" id="dyslexiaButton">
+        <span>👓</span> Mode Disleksia
+      </button>
+      <button onclick="copyText()" id="copyButton" disabled>
+        <span>📋</span> Salin Teks
+      </button>
+    </div>
+
+    <div class="speed-control">
+      <label for="speedRange">
+        Kecepatan Suara: <span class="speed-value" id="speedLabel">1</span>x
+      </label>
+      <input type="range" id="speedRange" min="0.5" max="2" step="0.1" value="1">
+    </div>
+
+    <footer>
+      Dibuat dengan ❤️ untuk mendukung pembaca dengan disleksia | SuaraBaca 2025
+    </footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
