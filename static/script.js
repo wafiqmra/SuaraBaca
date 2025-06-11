@@ -17,6 +17,7 @@ const dyslexiaButton = document.getElementById('dyslexiaButton');
 let extractedText = "";
 let isProcessing = false;
 let isDyslexiaMode = false;
+let cameraStream = null;
 
 // Event Listeners
 speedRange.addEventListener("input", updateSpeedLabel);
@@ -27,6 +28,55 @@ uploadArea.addEventListener("drop", handleDrop);
 imageInput.addEventListener('change', handleFileUpload);
 
 // Functions
+
+function openCamera() {
+  const modal = document.getElementById('cameraModal');
+  const video = document.getElementById('cameraView');
+  
+  modal.style.display = 'block';
+  
+  navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+    .then(stream => {
+      cameraStream = stream;
+      video.srcObject = stream;
+    })
+    .catch(err => {
+      console.error("Error mengakses kamera: ", err);
+      alert("Tidak dapat mengakses kamera. Pastikan Anda memberikan izin.");
+      closeCamera();
+    });
+}
+
+function closeCamera() {
+  const modal = document.getElementById('cameraModal');
+  const video = document.getElementById('cameraView');
+  
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+  
+  video.srcObject = null;
+  modal.style.display = 'none';
+}
+
+function captureFromCamera() {
+  const video = document.getElementById('cameraView');
+  const canvas = document.createElement('canvas');
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+  // Konversi ke blob untuk diproses
+  canvas.toBlob(blob => {
+    const file = new File([blob], 'capture.png', { type: 'image/png' });
+    imageInput.files = [file];
+    handleFileUpload();
+    closeCamera();
+  }, 'image/png');
+}
+
 function updateSpeedLabel() {
   speedLabel.textContent = speedRange.value;
 }
@@ -82,40 +132,87 @@ function processImageFile(file) {
     preview.src = e.target.result;
     preview.style.display = 'block';
     
-    // Use Tesseract.js to extract text
-    Tesseract.recognize(
-      e.target.result,
-      'ind', // Bahasa Indonesia
-      {
-        logger: m => {
-          if (m.status === 'recognizing text') {
-            progressBar.style.width = `${Math.round(m.progress * 100)}%`;
-            statusText.textContent = `Memproses: ${m.progress * 100}%`;
+    // Preprocess gambar sebelum OCR
+    preprocessImage(e.target.result)
+      .then(processedImage => {
+        return Tesseract.recognize(
+          processedImage,
+          'ind+eng', // Gabungkan bahasa Indonesia dan Inggris
+          {
+            logger: m => updateProgress(m),
+            tessedit_pageseg_mode: 6, // Mode segmentasi otomatis
+            preserve_interword_spaces: '1' // Pertahankan spasi antar kata
           }
-        }
-      }
-    ).then(({ data: { text } }) => {
-      extractedText = text.trim();
-      outputText.textContent = extractedText || "❗ Tidak ditemukan teks yang bisa dibaca.";
-      progressContainer.style.display = 'none';
-      readButton.disabled = false;
-      copyButton.disabled = false;
-      isProcessing = false;
-      
-      if (extractedText) {
-        // Auto-read if text is short
-        if (extractedText.length < 500) {
+        );
+      })
+      .then(({ data: { text } }) => {
+        extractedText = postProcessText(text.trim());
+        outputText.textContent = extractedText || "❗ Tidak ditemukan teks yang bisa dibaca.";
+        progressContainer.style.display = 'none';
+        readButton.disabled = false;
+        copyButton.disabled = false;
+        isProcessing = false;
+        
+        if (extractedText && extractedText.length < 500) {
           readText();
         }
-      }
-    }).catch(err => {
-      console.error(err);
-      outputText.textContent = "❌ Terjadi kesalahan saat memproses gambar.";
-      progressContainer.style.display = 'none';
-      isProcessing = false;
-    });
+      })
+      .catch(err => {
+        console.error(err);
+        outputText.textContent = "❌ Terjadi kesalahan saat memproses gambar.";
+        progressContainer.style.display = 'none';
+        isProcessing = false;
+      });
   };
   reader.readAsDataURL(file);
+}
+
+async function preprocessImage(imageData) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      
+      // Gambar ke canvas
+      ctx.drawImage(img, 0, 0);
+      
+      // Preprocessing sederhana
+      const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const data = imageData.data;
+      
+      // Tingkatkan kontras
+      for (let i = 0; i < data.length; i += 4) {
+        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3;
+        data[i] = data[i + 1] = data[i + 2] = avg < 128 ? 0 : 255;
+      }
+      
+      ctx.putImageData(imageData, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    img.src = imageData;
+  });
+}
+
+function postProcessText(text) {
+  // Perbaiki kesalahan OCR umum
+  const replacements = {
+    'b1': 'bl',
+    'l0': 'lo',
+    '1l': 'll',
+    '\\|': 'I',
+    // Tambahkan penggantian lain yang sering terjadi
+  };
+  
+  let result = text;
+  for (const [key, value] of Object.entries(replacements)) {
+    const regex = new RegExp(key, 'g');
+    result = result.replace(regex, value);
+  }
+  
+  return result;
 }
 
 function readText() {
@@ -182,3 +279,37 @@ function resetUI() {
   readButton.disabled = true;
   copyButton.disabled = true;
 }
+
+// Tambahkan di script.js
+function saveToHistory(imageData, extractedText) {
+  const history = JSON.parse(localStorage.getItem('ocrHistory') || '[]');
+  history.unshift({
+    date: new Date().toISOString(),
+    image: imageData,
+    text: extractedText
+  });
+  
+  // Simpan maksimal 10 riwayat
+  if (history.length > 10) history.pop();
+  
+  localStorage.setItem('ocrHistory', JSON.stringify(history));
+}
+
+// Panggil fungsi ini setelah ekstraksi teks berhasil
+saveToHistory(preview.src, extractedText);
+
+function playSound(type) {
+  const sounds = {
+    success: 'https://assets.mixkit.co/sfx/preview/mixkit-positive-interface-beep-221.mp3',
+    error: 'https://assets.mixkit.co/sfx/preview/mixkit-warning-alarm-688.mp3',
+    capture: 'https://assets.mixkit.co/sfx/preview/mixkit-camera-shutter-click-1133.mp3'
+  };
+  
+  const audio = new Audio(sounds[type]);
+  audio.play().catch(e => console.log("Autoplay prevented:", e));
+}
+
+// Panggil di tempat yang sesuai:
+// playSound('success') ketika berhasil
+// playSound('error') ketika gagal
+// playSound('capture') saat mengambil foto
