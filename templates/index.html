@@ -30,6 +30,10 @@
       <div class="status" id="statusText">Memproses gambar...</div>
     </div>
 
+    <div class="spell-check-loading" id="spellCheckLoading" style="display: none;">
+      Memeriksa ejaan...
+    </div>
+
     <div class="preview-container">
       <img id="preview" style="display: none;" />
     </div>
@@ -39,9 +43,6 @@
     </div>
 
     <div class="controls">
-      <button onclick="openCamera()" id="cameraButton">
-        <span>📷</span> Ambil Foto
-      </button>
       <button onclick="readText()" id="readButton" disabled>
         <span>🔊</span> Baca Teks
       </button>
@@ -54,21 +55,13 @@
       <button onclick="copyText()" id="copyButton" disabled>
         <span>📋</span> Salin Teks
       </button>
-    </div>
-
-    <div id="cameraModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; text-align:center;">
-  <div style="position:relative; max-width:800px; margin:auto; padding:20px;">
-    <video id="cameraView" autoplay playsinline style="max-width:100%; border:3px solid white; border-radius:8px;"></video>
-    <div style="margin-top:20px;">
-      <button onclick="captureFromCamera()" style="background:#2ecc71; padding:12px 25px; font-size:1.2rem;">
-        <span>📸</span> Ambil Gambar
+      <button onclick="checkSpellingManually()" id="spellCheckButton" disabled>
+        <span>✏️</span> Periksa Ejaan
       </button>
-      <button onclick="closeCamera()" style="background:#e74c3c; padding:12px 25px; font-size:1.2rem; margin-left:15px;">
-        <span>✖</span> Tutup
+      <button onclick="simplifyText()" id="simplifyButton" disabled>
+        <span>✨</span> Sederhanakan
       </button>
     </div>
-  </div>
-</div>
 
     <div class="speed-control">
       <label for="speedRange">
