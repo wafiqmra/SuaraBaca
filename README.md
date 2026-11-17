@@ -89,6 +89,7 @@ SuaraBaca/
 ## Team
 
 - Wafiq Mariatul Azizah
+- Alonza Nara Shadrika
 - Raden Dika Natakusumah
 - Defina Hazimah
 - Rhestu Dzulkifli
